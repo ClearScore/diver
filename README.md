@@ -1,24 +1,38 @@
 # dataset-conditioner
 
+![`fit_transform` flow](pictures/readme_flow.png)
 
+## Procedure
 
-## To Do
+See `demo.ipynb` for a full walkthrough
+
+## Future Work
 
 ### `missing_value_conditioner`
-- Store means for test set conditioning
+- Choose between either {use means from train set (default), calculate means for test set}
 - Missing values for categorical features
+- Check % of missing values in each column and drop feature (and store) if above threshold
 
-### `numeric_encoder`
-- Way of switching scaling off for decision-tree-type models which don't require it
+- Implement this: https://measuringu.com/handle-missing-data/
 
 ### `ordinal_encoder`
 - Create a function to do this
 
+### `nominal_encoder`
+- A function which does a value count and then keeps only the top n categories and assigns all else to an `other` category
+
 ### `timestamp_encoder`
-- Datetimes are read in as strings with pandas.DataTime - include function to convert these to datetime/timestamp format if not already
+- Datetimes are read in as strings with `pandas.read_csv` - include function to convert these to datetime/timestamp format if not already
+- Extra features: {is_weekend : bool, is_holiday (harder) : bool}
+- String-to-date enforcer at the start
 
-### `transform`
-- Equivalent of `fit_transform` for test set
+### `boolean_encoder`
+- Recognise `int` as `bool`
 
-### `module tom.py`
+### Remove warnings
 
+### Make robust to non-consecutive indices in input df
+
+### Unit test all functions
+
+## Useful info
