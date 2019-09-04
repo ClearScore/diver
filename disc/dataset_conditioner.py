@@ -343,6 +343,13 @@ def _nominal_encoder(features, useful_cols, mode='fit_transform', **kwargs):
     return nominal_features_transformed, cat_cols
 
 
+def weekend_flagger(timestamp):
+    
+    '''Given a timestamp, returns 1 if it is a Saturday or Sunday, 0 otherwise'''
+    
+    return timestamp.weekday() == 6 or timestamp.weekday() == 7
+
+
 def _timestamp_transformer(timestamps, time_of_day_in='seconds', year_normalised=True):
     
     '''
@@ -351,6 +358,7 @@ def _timestamp_transformer(timestamps, time_of_day_in='seconds', year_normalised
     - Day of week
     - Month of year
     - Year
+    - Flag if it is a weekend (boolean)
 
     All but the year column are cyclical, so are further decomposed into sin and cos transforms of the original, \
     so that e.g. 11.59pm is considered close to 00.00am, and Sunday and Monday, and December and January \
@@ -372,6 +380,9 @@ def _timestamp_transformer(timestamps, time_of_day_in='seconds', year_normalised
         
     '''
     
+    # Ensure input timestamps are in timestamp/datetime format and not string format
+    timestamps = pd.to_datetime(timestamps)
+    
     # Split timestamps in timestamps series into a pandas DataFrame of component timestamp parts
     timestamps_transformed = timestamps.apply(
         lambda x: {
@@ -381,13 +392,14 @@ def _timestamp_transformer(timestamps, time_of_day_in='seconds', year_normalised
             'year': x.year, 
             'hour_of_day': x.hour, 
             'minute_of_hour': x.minute, 
-            'second_of_minute': x.second}
+            'second_of_minute': x.second,
+            'is_weekend': weekend_flagger(x)}
     )
 
     timestamps_transformed = pd.DataFrame(list(timestamps_transformed))
 
     # Get second of day 
-    timestamps_transformed['second_of_day'] =         timestamps_transformed['hour_of_day']*60*60 +         timestamps_transformed['minute_of_hour']*60 +         timestamps_transformed['second_of_minute']
+    timestamps_transformed['second_of_day'] = timestamps_transformed['hour_of_day']*60*60 + timestamps_transformed['minute_of_hour']*60 + timestamps_transformed['second_of_minute']
 
     # Define constants
     seconds_in_day = 24*60*60
@@ -396,25 +408,22 @@ def _timestamp_transformer(timestamps, time_of_day_in='seconds', year_normalised
     hours_in_day = 24
 
     # Circular transform of second of day
-    timestamps_transformed['sin_second_of_day'] =         timestamps_transformed['second_of_day'].apply(lambda x: np.sin(2*np.pi*x / seconds_in_day))
-
-    timestamps_transformed['cos_second_of_day'] =         timestamps_transformed['second_of_day'].apply(lambda x: np.cos(2*np.pi*x / seconds_in_day))
+    timestamps_transformed['sin_second_of_day'] = timestamps_transformed['second_of_day'].apply(lambda x: np.sin(2*np.pi*x / seconds_in_day))
+    timestamps_transformed['cos_second_of_day'] = timestamps_transformed['second_of_day'].apply(lambda x: np.cos(2*np.pi*x / seconds_in_day))
 
     # Circular transform of hour of day
-    timestamps_transformed['sin_hour_of_day'] =         timestamps_transformed['hour_of_day'].apply(lambda x: np.sin(2*np.pi*x / hours_in_day))
-
-    timestamps_transformed['cos_hour_of_day'] =         timestamps_transformed['hour_of_day'].apply(lambda x: np.cos(2*np.pi*x / hours_in_day))
+    timestamps_transformed['sin_hour_of_day'] = timestamps_transformed['hour_of_day'].apply(lambda x: np.sin(2*np.pi*x / hours_in_day))
+    timestamps_transformed['cos_hour_of_day'] =  timestamps_transformed['hour_of_day'].apply(lambda x: np.cos(2*np.pi*x / hours_in_day))
 
     # Circular transform of day of week
-    timestamps_transformed['sin_day_of_week'] =         timestamps_transformed['day_of_week'].apply(lambda x: np.sin(2*np.pi*x / weekdays_in_week))
-
-    timestamps_transformed['cos_day_of_week'] =         timestamps_transformed['day_of_week'].apply(lambda x: np.cos(2*np.pi*x / weekdays_in_week))
+    timestamps_transformed['sin_day_of_week'] = timestamps_transformed['day_of_week'].apply(lambda x: np.sin(2*np.pi*x / weekdays_in_week))
+    timestamps_transformed['cos_day_of_week'] = timestamps_transformed['day_of_week'].apply(lambda x: np.cos(2*np.pi*x / weekdays_in_week))
 
     # Circular transform of month of year
-    timestamps_transformed['sin_month_of_year'] =         timestamps_transformed['month_of_year'].apply(lambda x: np.sin(2*np.pi*x / months_in_year))
+    timestamps_transformed['sin_month_of_year'] = timestamps_transformed['month_of_year'].apply(lambda x: np.sin(2*np.pi*x / months_in_year))
+    timestamps_transformed['cos_month_of_year'] = timestamps_transformed['month_of_year'].apply(lambda x: np.cos(2*np.pi*x / months_in_year))
 
-    timestamps_transformed['cos_month_of_year'] =         timestamps_transformed['month_of_year'].apply(lambda x: np.cos(2*np.pi*x / months_in_year))
-
+    # Determine list of output columns based on `time_of_day_in` parameter
     if time_of_day_in == 'seconds':
         output_cols = [
             'sin_second_of_day',
@@ -423,7 +432,8 @@ def _timestamp_transformer(timestamps, time_of_day_in='seconds', year_normalised
             'cos_day_of_week',
             'sin_month_of_year',
             'cos_month_of_year',
-            'year'        
+            'year',
+            'is_weekend',
         ]
     elif time_of_day_in == 'hours':
             output_cols = [
@@ -433,7 +443,8 @@ def _timestamp_transformer(timestamps, time_of_day_in='seconds', year_normalised
             'cos_day_of_week',
             'sin_month_of_year',
             'cos_month_of_year',
-            'year'        
+            'year',
+            'is_weekend',
         ]
     else:
         raise ValueError('`time_of_day_in` should be one of [\'seconds\', \'hours\']')
