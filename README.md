@@ -22,9 +22,7 @@ See `demo.ipynb` for a full walkthrough
 - A function which does a value count and then keeps only the top n categories and assigns all else to an `other` category
 
 ### `timestamp_encoder`
-- Datetimes are read in as strings with `pandas.read_csv` - include function to convert these to datetime/timestamp format if not already
-- Extra features: {is_weekend : bool, is_holiday (harder) : bool}
-- String-to-date enforcer at the start
+- is_public_holiday : bool
 
 ### `boolean_encoder`
 - Recognise `int` as `bool`
