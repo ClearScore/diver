@@ -23,6 +23,7 @@ See `demo.ipynb` for a full walkthrough
 
 ### `timestamp_encoder`
 - is_public_holiday : bool
+- Update above diagram
 
 ### `boolean_encoder`
 - Recognise `int` as `bool`
