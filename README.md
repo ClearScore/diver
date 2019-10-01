@@ -35,3 +35,8 @@ See `demo.ipynb` for a full walkthrough
 ### Unit test all functions
 
 ## Useful info
+
+# dataset_inspector
+
+## categorical - nunique
+Give nunique and relative nunique (/ by n_samples) for all categorical columns, with option of trimming off those with too high relative nunique
