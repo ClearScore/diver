@@ -27,6 +27,7 @@ See `demo.ipynb` for a full walkthrough
 
 ### `boolean_encoder`
 - Recognise `int` as `bool`
+- Fix error where it crashes if all either `True` or `False`
 
 ### Remove warnings
 
