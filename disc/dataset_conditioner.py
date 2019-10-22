@@ -289,56 +289,64 @@ def _nominal_encoder(features, useful_cols, mode='fit_transform', **kwargs):
 
     # Select these columns from the main features dataframe
     nominal_features = features[nominal_cols]
-
-    # Use pandas `get_dummies` method to one-hot-encode these columns
-    nominal_features_transformed = pd.get_dummies(nominal_features)
     
-    
-    if mode == 'fit_transform':
+    # If there are no nominal columns, skip the later steps
+    if len(nominal_cols) == 0:
+        nominal_features_transformed = nominal_features
+        cat_cols = []
         
-        # Store transformed one-hot category columns for use later with the test set
-        cat_cols = list(nominal_features_transformed.columns)
-    
-    elif mode == 'transform':
-        
-        # Load 'fit_transform' stage categorical columns
-        cat_cols = kwargs['cat_cols']
-        
-        # Test set columns
-        test_cat_cols = list(nominal_features_transformed.columns)
+    # If there are some nominal columns:    
+    elif len(nominal_cols) > 0:
 
-        # Train set categories missing in the test set
-        missing_test_cols = set(cat_cols) - set(test_cat_cols)
 
-        print('missing_test_cols: {}'.format(missing_test_cols))
+        # Use pandas `get_dummies` method to one-hot-encode these columns
+        nominal_features_transformed = pd.get_dummies(nominal_features)
 
-        # Test set categories missing in the train set
-        extra_test_cols = set(test_cat_cols) - set(cat_cols)
+        if mode == 'fit_transform':
 
-        print('extra_test_cols: {}'.format(extra_test_cols))
+            # Store transformed one-hot category columns for use later with the test set
+            cat_cols = list(nominal_features_transformed.columns)
 
-        # Remove extra cols
-        nominal_features_transformed.drop(extra_test_cols, axis=1, inplace=True)
+        elif mode == 'transform':
 
-        # Add in missing cols as all zeros
-        for col in missing_test_cols:
-            nominal_features_transformed[col] = 0
+            # Load 'fit_transform' stage categorical columns
+            cat_cols = kwargs['cat_cols']
 
-        
-        print('set difference after sorting: {}'.format(set(cat_cols) - set(nominal_features_transformed.columns)))
+            # Test set columns
+            test_cat_cols = list(nominal_features_transformed.columns)
 
-        # Sort columns in same order as train set
-        nominal_features_transformed = nominal_features_transformed[cat_cols]
+            # Train set categories missing in the test set
+            missing_test_cols = set(cat_cols) - set(test_cat_cols)
 
-        # Check columns are now identical between train and test sets
-        print('Test set cols in same order as train set: {}'.format(
-            cat_cols == list(nominal_features_transformed.columns)))
-              
-    else:
-        raise ValueError(
-            '''`Mode` argument "{}" not supported. Needs to be one of ('fit_transform', 'transform')
-            '''.format(mode).replace('\n',' ')
-        )
+            print('missing_test_cols: {}'.format(missing_test_cols))
+
+            # Test set categories missing in the train set
+            extra_test_cols = set(test_cat_cols) - set(cat_cols)
+
+            print('extra_test_cols: {}'.format(extra_test_cols))
+
+            # Remove extra cols
+            nominal_features_transformed.drop(extra_test_cols, axis=1, inplace=True)
+
+            # Add in missing cols as all zeros
+            for col in missing_test_cols:
+                nominal_features_transformed[col] = 0
+
+
+            print('set difference after sorting: {}'.format(set(cat_cols) - set(nominal_features_transformed.columns)))
+
+            # Sort columns in same order as train set
+            nominal_features_transformed = nominal_features_transformed[cat_cols]
+
+            # Check columns are now identical between train and test sets
+            print('Test set cols in same order as train set: {}'.format(
+                cat_cols == list(nominal_features_transformed.columns)))
+
+        else:
+            raise ValueError(
+                '''`Mode` argument "{}" not supported. Needs to be one of ('fit_transform', 'transform')
+                '''.format(mode).replace('\n',' ')
+            )
         
     return nominal_features_transformed, cat_cols
 
