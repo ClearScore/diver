@@ -60,3 +60,6 @@ See `demo.ipynb` for a full walkthrough
 - https://machinelearningmastery.com/tactics-to-combat-imbalanced-classes-in-your-machine-learning-dataset/
 
 ### Extreme values
+
+# Useful reading
+https://machinelearningmastery.com/process-for-working-through-machine-learning-problems/
