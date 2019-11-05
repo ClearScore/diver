@@ -56,4 +56,6 @@ See `demo.ipynb` for a full walkthrough
 ### Missing values inspector
 - Past a threshold, either DROP column or FLAG features with an unacceptable % of missing values
 
+### Label balanced class checker (for classification problems)
+
 ### Extreme values
