@@ -57,5 +57,6 @@ See `demo.ipynb` for a full walkthrough
 - Past a threshold, either DROP column or FLAG features with an unacceptable % of missing values
 
 ### Label balanced class checker (for classification problems)
+- https://machinelearningmastery.com/tactics-to-combat-imbalanced-classes-in-your-machine-learning-dataset/
 
 ### Extreme values
