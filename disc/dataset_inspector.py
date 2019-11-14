@@ -1,3 +1,6 @@
+# Import libraries
+import pandas as pd
+
 def categorical_excess_cardinality_flagger_and_reducer(
     df, 
     useful_cols, 
