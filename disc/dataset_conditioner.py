@@ -8,6 +8,8 @@ from sklearn.preprocessing import StandardScaler    # Demean and rescale numeric
 # For saving and loading FullEncoder object
 import pickle
 from joblib import dump, load
+# For checking for nans, used in boolean_mapper
+from math import isnan
 
 
 #############
@@ -58,16 +60,10 @@ def _missing_value_conditioner(features, useful_cols, mode='fit_transform', **kw
     '''
     
     ## Get DataFrame containing features with some NaNs, and how to deal with them joined on from the `useful_cols` df
-
     # Get counts of NaN values in each column
     features_nan_counts = pd.DataFrame(features.isna().sum()).reset_index()
-
     # Rename columns in resulting DataFrame
     features_nan_counts.rename(mapper={'index': 'feature', 0: 'nan_count'}, axis=1, inplace=True)
-
-    # # filter for only features containing NaNs
-    # features_nan_counts = features_nan_counts[features_nan_counts['nan_count'] != 0]
-
     # Join on how to deal with nans from the `useful_cols` df
     features_nan_counts = pd.merge(features_nan_counts, useful_cols, on='feature')
     
@@ -75,64 +71,47 @@ def _missing_value_conditioner(features, useful_cols, mode='fit_transform', **kw
     fill_types = set(features_nan_counts['fillna'].values)
     
     for fill_type in fill_types:
-        
         if fill_type == 'skip':
             pass
-
+        
         elif fill_type == 'mean':
-            ## If fill type is 'mean':
-
             # Get list of columns to be filled in a given way
             feats_mean_filled = list(
                 features_nan_counts['feature'][features_nan_counts['fillna'] == 'mean'].values
             )
-
             # Get slice of main `features` df for these features
             features_with_nans = features[feats_mean_filled]
-            
-            # Whether to calculate feature means, or use pre-calculated ones, is determined by the `mode` input
-            # parameter
+            # Whether to calculate feature means, or use pre-calculated ones, is determined by the `mode` input parameter
             if mode == 'fit_transform':
                 # Get the means of each feature
                 means = features_with_nans.mean()
-                
             elif mode == 'transform':
                 # Use pre-calculated means from a previous `fit_transform` stage
                 means = kwargs['means']
-                
             else:
                 raise ValueError(
                     '''`Mode` argument "{}" not supported. Needs to be one of ('fit_transform', 'transform')
                     '''.format(mode).replace('\n',' ')
                 )
-
             # Get the locations of NaNs
             idx_nans = features_with_nans.isna()
-
             # Initialise copy dataframe
             features_without_nans = pd.DataFrame(index=features_with_nans.index)
-
             # Iterate over columns and replace NaNs for each with the column average
             for name, column in features_with_nans.iteritems():
                 # Change NaNs to the mean value. This works in-place in the loop and changes features_with_nans 
                 # in-place
                 column.loc[idx_nans[name]] = means[name]
-                
             # Overwrite the original features (with nans), with the new copy with nans filled
             features.loc[:,feats_mean_filled] = features_with_nans
         
         elif fill_type == 'zeros':
-            ## If fill type is 'zeros':
-
             # Get list of columns to be filled in a given way
             feats_zeros_filled = list(features_nan_counts['feature'][features_nan_counts['fillna'] == 'zeros'].values)
-
             # Get slice of main `features` df for these features
             features_with_nans_zeros = features[feats_zeros_filled]
-
             # Fill all NaN locations with zeros
             features_with_nans_zeros.fillna(value=0, inplace=True)
-            
             # Overwrite the original features (with nans), with the new copy with nans filled
             features.loc[:,feats_zeros_filled] = features_with_nans_zeros
             
@@ -185,23 +164,18 @@ def _numeric_encoder(features, useful_cols, mode='fit_transform', **kwargs):
     
     # Get list of numeric columns
     numeric_cols = useful_cols.loc[useful_cols.dtype == 'numeric', 'feature'].values
-    
     # Select these columns from the main features dataframe
     numeric_features = features[numeric_cols]
     
     if mode == 'fit_transform':
-        
         # Instantiate sklearn demean/rescaler
         scaler = StandardScaler()
-
         # Fit sklearn demean/rescaler
         numeric_features_transformed = scaler.fit_transform(numeric_features)
         
     elif mode == 'transform':
-        
         # Load scaler included in the kwargs (already fitted in the previous 'fit_transform' stage)
         scaler = kwargs['scaler']
-        
         # Transform numeric features using previous sklearn demean/rescaler
         numeric_features_transformed = scaler.transform(numeric_features)    
         
@@ -351,10 +325,8 @@ def _nominal_encoder(features, useful_cols, mode='fit_transform', **kwargs):
     return nominal_features_transformed, cat_cols
 
 
-def weekend_flagger(timestamp):
-    
+def _weekend_flagger(timestamp):
     '''Given a timestamp, returns 1 if it is a Saturday or Sunday, 0 otherwise'''
-    
     return timestamp.weekday() == 6 or timestamp.weekday() == 7
 
 
@@ -401,7 +373,7 @@ def _timestamp_transformer(timestamps, time_of_day_in='seconds', year_normalised
             'hour_of_day': x.hour, 
             'minute_of_hour': x.minute, 
             'second_of_minute': x.second,
-            'is_weekend': weekend_flagger(x)}
+            'is_weekend': _weekend_flagger(x)}
     )
 
     timestamps_transformed = pd.DataFrame(list(timestamps_transformed))
@@ -538,29 +510,37 @@ def _timestamp_encoder(features, useful_cols):
     return timestamp_features_transformed
 
 
+def _boolean_mapper(boolean_like):
+    '''
+    Function maps boolean-like inputs (str or numeric) to true bool
+    '''
+    
+    # Inputs to be recognised as booleans
+    true_set = {'True','true','TRUE','tru',1,'t','T','1', float(1), True}
+    false_set = {'False','false','FALSE','fals',0,'f','F','0', float(0), False}
+    
+    # Test for nans, and if nan, return itself (nans dealt with later)
+    if type(boolean_like) in {float, int} and isnan(boolean_like):
+        return boolean_like
+    # Convert to true boolean values
+    elif boolean_like in true_set:
+        return True
+    elif boolean_like in false_set:
+        return False
+    else:
+        raise ValueError(f'Boolean-like input {boolean_like} (dtype {type(boolean_like)}), not recognised as a boolean')
+
+        
 def _boolean_transformer(features, useful_cols):
     '''
-    Function which takes in a Pandas DataFrame of columns marked as boolean, and ensures the values are true \
-    booleans (transforms any string representations e.g. 'true', 'TRUE', 'True')
+    Function which takes in a Pandas DataFrame of columns marked as boolean but which may be str or numeric, and ensures all values are true booleans
 
     Parameters
     ----------
-    bool_features : pandas.DataFrame
-        A DataFrame consisting of columns labelled as boolean, but which may not necessarily be (columns may \
-        contain string representations of boolean values)
+    features : pandas.DataFrame
+        Input dataframe
     useful_cols : pandas.DataFrame
-        Look-up dataframe, which contains information about the dtypes of desired features, and how to deal with
-        missing values for each feature
-        
-    Raises
-    ------
-    ValueError 
-        if strings are not one of lowercase (e.g. 'true'), uppercase (e.g. 'TRUE') or uppercase first letter \
-        (e.g. 'True')
-    ValueError 
-        if the datatype of a column of input `bool_features` DataFrame is not one of already boolean or a string
-    ValueError 
-        if, in the case of string input dtypes in a column, there are mixed cases (e.g. {'false', 'FALSE'})
+        Look-up dataframe, which contains information about the dtypes of desired features, and how to deal with missing values for each feature
 
     Returns
     -------
@@ -569,74 +549,14 @@ def _boolean_transformer(features, useful_cols):
     
     '''
 
-    # Get list of boolean columns
+    # Map boolean-like features to true booleans
     bool_cols = useful_cols.loc[useful_cols.dtype == 'bool', 'feature'].values
-
-    # Select these columns from the main features dataframe
-    bool_features = features[bool_cols]
-    
-    # List strings which can be recognised and transformed 
-    bool_dict_lowercase = ['true', 'false']
-    bool_dict_uppercase = ['TRUE', 'FALSE']
-    bool_dict_mixedcase = ['True', 'False']
-    # bool_dict_numeric?
-    # numpy bool?
-
-    # Loop through columns of the boolean_features dataframe
-    for name, column in bool_features.iteritems():
-
-        # Get unique values of boolean column - to check they are really boolean
-        values = column.unique()
-        entry_types = []
-
-        # Loop through value list (should be length 2, with true-type and false-type objects) and log format of each
-        # item in the list
-        for item in values:
-
-            # If already boolean, no probs!
-            if type(item) == bool or (int and set(values) == {True, False}):
-                entry_types.append('bool')
-
-            # If it's a string, needs to be converted
-            elif type(item) == str:
-                # Check if item is a lowercase string representation of a boolean value
-                if item in bool_dict_lowercase:
-                    # Log entry type
-                    entry_types.append('lowercase_str')
-                elif item in bool_dict_uppercase:
-                    # Log entry type
-                    entry_types.append('uppercase_str')
-                elif item in bool_dict_mixedcase:
-                    # Log entry type
-                    entry_types.append('mixedcase_str')
-                else:
-                    raise ValueError('Format of string representation of bool not recognised. Can be one of all lowercase (["true", "false"], all uppercase (["TRUE", "FALSE"], uppercase first char (["True", "False"])')   
-
-            # If the item is neither boolean nor string, throw an error    
-            else:
-                raise ValueError('dtype of column labelled as "bool" has not been recognised as either `bool` or `str`')
-
-            # Need all the entry types of the columns to be the same
-            if len(set(entry_types)) != 1:
-                raise ValueError('Mixed dtypes in the column of types {}. Needs to be same dtype'.format(entry_types))
-
-            else:
-                # If the dtypes are string dtypes, map to boolean values with the dictionaries defined above
-                if entry_types[0] == 'lowercase_str':
-                    column[column == 'true'] = True
-                    column[column == 'false'] = False
-                elif entry_types[0] == 'uppercase_str':
-                    column[column == 'TRUE'] = True
-                    column[column == 'FALSE'] = False
-                elif entry_types[0] == 'mixedcase_str':
-                    column[column == 'True'] = True
-                    column[column == 'False'] = False
-
+    features[bool_cols] = features[bool_cols].applymap(_boolean_mapper)
     # The dataframe is transformed in place - just copy name for clarity
-    bool_features_transformed = bool_features
+    bool_features_transformed = features
 
     return bool_features_transformed
-
+        
 
 ############
 ## PUBLIC ##
