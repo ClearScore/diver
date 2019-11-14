@@ -41,25 +41,24 @@ See `demo.ipynb` for a full walkthrough
 ## Useful info
 
 # dataset_inspector
-
-### Categorical cardinality inspector
-- Past a threshold, either DROP column or assign smaller classes to `other`
 - https://towardsdatascience.com/smarter-ways-to-encode-categorical-data-for-machine-learning-part-1-of-3-6dca2f71b159
+### Label balanced class checker (for classification problems)
+- https://machinelearningmastery.com/tactics-to-combat-imbalanced-classes-in-your-machine-learning-dataset/
+
+### Extreme values
+
+# dataset_visualiser
 
 ### Distribution and correlation analysis
 - Display correlation matrix for top `n` correlates alongside target at the bottom
 - Display pairplot for top `n` correlates alongside target at the bottom
 - Or instead of `top n` correlates, instead threshold of `cumulative variance`
 - Option to DROOP lower correlates (lower than threshold) if desired
-- Option for PCA at this stage?
-
-### Missing values inspector
-- Past a threshold, either DROP column or FLAG features with an unacceptable % of missing values
-
-### Label balanced class checker (for classification problems)
-- https://machinelearningmastery.com/tactics-to-combat-imbalanced-classes-in-your-machine-learning-dataset/
-
-### Extreme values
 
 # Useful reading
 https://machinelearningmastery.com/process-for-working-through-machine-learning-problems/
+
+
+- Option for PCA at this stage?
+
+
