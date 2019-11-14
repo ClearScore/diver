@@ -41,19 +41,13 @@ def categorical_excess_cardinality_flagger_and_reducer(
     
     '''
     
-    # Get categorical feature names
-    categorical_features = list(useful_cols.loc[useful_cols.dtype == 'nominal', 'feature'])
-
     # Get categorical features
+    categorical_features = list(useful_cols.loc[useful_cols.dtype == 'nominal', 'feature'])
     categorical_data = df[categorical_features]
-
-    # Get total number of samples
+    
+    # Get cardinality of categorical features (absolute and as a fraction of total number of samples in dataset)
     m_samples = categorical_data.shape[0]
-
-    # Get cardinality of categorical features
     df_cardinality = categorical_data.nunique()
-
-    # Get cardinality as a fraction of total number of samples in the dataset 
     df_cardinality_fraction = df_cardinality / m_samples
 
     # Get features which exceed cardinality_fraction_threshold
@@ -77,7 +71,7 @@ def categorical_excess_cardinality_flagger_and_reducer(
         n_max_categories = kwargs['reducer_max_categories']
         
         for feature in excess_cardinality:
-            # Cap categories at n_max_categories - smaller categories, assign to 'other'
+            # Cap categories at n_max_categories - smaller categories, assign to 'SMALL_CATEGORY'
             # Value counts for all categories in the categorical feature - ordered list
             value_counts = df[feature].value_counts()
 
@@ -252,4 +246,4 @@ def inspect_and_clean(df,
     report['excess_nulls_features'] = excess_null_count
     report['zero_variance_features'] = zero_variance_features
     
-    return useful_cols, report
+    return df_altered, useful_cols, report
