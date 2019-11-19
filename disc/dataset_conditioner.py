@@ -551,9 +551,7 @@ def _boolean_transformer(features, useful_cols):
 
     # Map boolean-like features to true booleans
     bool_cols = useful_cols.loc[useful_cols.dtype == 'bool', 'feature'].values
-    features[bool_cols] = features[bool_cols].applymap(_boolean_mapper)
-    # The dataframe is transformed in place - just copy name for clarity
-    bool_features_transformed = features
+    bool_features_transformed = features[bool_cols].applymap(_boolean_mapper)
 
     return bool_features_transformed
         
