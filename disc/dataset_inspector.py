@@ -202,6 +202,8 @@ def inspect_and_clean(df,
     
     Returns
     -------
+    df_altered : pandas.DataFrame
+        Cleaned version of the input dataframe
     useful_cols : pandas.DataFrame
         Returned unchanged if `cutter` == False, else the clipped features are removed
     report : dict
