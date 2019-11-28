@@ -8,12 +8,17 @@ See `demo.ipynb` for a full walkthrough
 
 ## Future Work
 
+### `useful_cols` imputation
+For large feature sets, impute dtypes for this table
+
 ### `missing_value_conditioner`
 - Choose between either {use means from train set (default), calculate means for test set}
 - Missing values for categorical features
 - Check % of missing values in each column and drop feature (and store) if above threshold
 
 - Implement this: https://measuringu.com/handle-missing-data/
+
+- GOOD READING: https://towardsdatascience.com/6-different-ways-to-compensate-for-missing-values-data-imputation-with-examples-6022d9ca0779
 
 ### `ordinal_encoder`
 - Create a function to do this
