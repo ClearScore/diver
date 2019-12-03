@@ -11,7 +11,6 @@ See `example-notebooks/house-price-demo.ipynb` for a full walkthrough
 ### `missing_value_conditioner`
 - Choose between either {use means from train set (default), calculate means for test set}
 - Missing values for categorical features
-- Check % of missing values in each column and drop feature (and store) if above threshold
 
 - Implement this: https://measuringu.com/handle-missing-data/
 
@@ -20,16 +19,9 @@ See `example-notebooks/house-price-demo.ipynb` for a full walkthrough
 ### `ordinal_encoder`
 - Create a function to do this
 
-### `nominal_encoder`
-- A function which does a value count and then keeps only the top n categories and assigns all else to an `other` category - see also `dataset_inspector` below
-
 ### `timestamp_encoder`
 - is_public_holiday : bool
 - Update above diagram
-
-### `boolean_encoder`
-- Recognise `int` as `bool`
-- Fix error where it crashes if all either `True` or `False`
 
 ### Remove warnings
 
