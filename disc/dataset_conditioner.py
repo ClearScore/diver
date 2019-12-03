@@ -10,6 +10,7 @@ import pickle
 from joblib import dump, load
 # For checking for nans, used in boolean_mapper
 from math import isnan
+from _shared import _get_boolean_elements
 
 
 #############
@@ -516,8 +517,7 @@ def _boolean_mapper(boolean_like):
     '''
     
     # Inputs to be recognised as booleans
-    true_set = {'True','true','TRUE','tru',1,'t','T','1', float(1), True}
-    false_set = {'False','false','FALSE','fals',0,'f','F','0', float(0), False}
+    true_set, false_set = _get_boolean_elements()
     
     # Test for nans, and if nan, return itself (nans dealt with later)
     if type(boolean_like) in {float, int} and isnan(boolean_like):
