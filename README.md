@@ -4,12 +4,9 @@
 
 ## Procedure
 
-See `demo.ipynb` for a full walkthrough
+See `example-notebooks/house-price-demo.ipynb` for a full walkthrough
 
 ## Future Work
-
-### `useful_cols` imputation
-For large feature sets, impute dtypes for this table
 
 ### `missing_value_conditioner`
 - Choose between either {use means from train set (default), calculate means for test set}
