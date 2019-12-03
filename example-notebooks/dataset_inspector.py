@@ -1,5 +1,129 @@
 # Import libraries
 import pandas as pd
+import numpy as np
+
+##############################
+# USEFUL_COLS AUTO-GENERATOR #
+##############################
+
+def _get_boolean_elements():
+    '''
+    Returns sets of elements recognisable as booleans
+    '''
+    
+    # Inputs to be recognised as booleans
+    true_set = {'True','true','TRUE','tru',1,'t','T','1', float(1), True, 'yes', 'Yes', 'YES', 'Y', 'y'}
+    false_set = {'False','false','FALSE','fals',0,'f','F','0', float(0), False, 'no', 'No', 'NO', 'N', 'n'}
+    
+    return true_set, false_set
+
+
+def _dtype_detector(features):
+    '''
+    Automatically detects the following data-types for each column of a feature-set:
+    - Timestamps
+    - Booleans
+    - Numeric (if not already flagged as timestamp or boolean)
+    - Nominal (if not already flagged as timestamp or boolean)    
+    '''
+    
+    timestamp_cols = []
+    boolean_cols = []
+    # Get boolean element definitions
+    true_set, false_set = _get_boolean_elements()
+    
+    for feature_name, feature in features.iteritems():
+        
+        ## Detect timestamp/datetime features
+        
+        if pd.core.dtypes.common.is_datetime_or_timedelta_dtype(feature):
+            timestamp_cols.append(feature_name)
+
+        ## Detect boolean features
+        
+        # Series.value_counts() disregards NaNs, so a necessary condition for a boolean column is a set of values of length 2
+        feature_values = feature.value_counts().values
+        n_values = len(feature_values)
+
+        if n_values == 2:
+            if feature_values[0] in true_set and feature_values[1] in false_set:
+                boolean_cols.append(feature_name)
+            elif feature_values[1] in true_set and feature_values[0] in false_set:
+                boolean_cols.append(feature_name)
+            else:
+                pass
+        else:
+            pass
+        
+    ## Test for numerical/categorical
+
+    # Ignore features already flagged as boolean or timestamp
+    remaining_features_cols = features.columns.drop((boolean_cols + timestamp_cols))
+    remaining_features = features[remaining_features_cols]
+    
+    # Get count of elements of feature which are numeric, expressed as a proportion of total samples
+    n_samples = remaining_features.shape[0]
+    real_number_counts = remaining_features.applymap(np.isreal).sum()
+    proportion_real = real_number_counts / n_samples
+
+    # From these counts, get where all/none/some are numeric
+    all_numeric = proportion_real[proportion_real == 1].index
+    none_numeric = proportion_real[proportion_real == 0].index
+    partially_numeric = proportion_real[proportion_real.between(0, 1, inclusive=False)].index
+    
+    # Where all numeric, mark as such, else mark as nominal
+    # Keep track of where there is a mix of numeric and nominal, as a warning flag
+    numeric_cols = list(all_numeric)
+    nominal_cols = list(none_numeric) + list(partially_numeric)
+    nominal_cols_mixed_dtype = list(partially_numeric)
+    
+    if len(nominal_cols) > 0:
+        print(f'The following columns contain both numeric and non-numeric elements; as such they have been flagged as nominal dtype, alongside features with non-numeric elements only: {nominal_cols_mixed_dtype}')
+        
+        
+    return boolean_cols, timestamp_cols, numeric_cols, nominal_cols
+
+
+def infer_useful_cols(features, fill_methods={'numeric': 'mean', 'nominal': 'skip', 'bool': 'zeros','timestamp': 'skip'}):
+    '''
+    Automatically generates the `useful_cols` DataFrame given a feature-set and a dictionary specifying how missing values are to be filled
+    
+    Parameters
+    ----------
+    features : pandas.DataFrame
+        The full feature-set desired for training a model
+    fill_methods : dict
+        A dictionary for which:
+            - keys are allowed data-types
+            - values are the methods for filling missing values in the feature
+    
+    Returns
+    -------
+    useful_cols : pandas.DataFrame
+    '''
+    
+    # Detect dtype of each feature
+    boolean_cols, timestamp_cols, numeric_cols, nominal_cols = _dtype_detector(features)
+
+    # Append dtype label and fill method to each feature as specified in the fill_method dictionary
+    numeric_cols = [[x, 'numeric', fill_methods['numeric']] for x in numeric_cols]
+    nominal_cols = [[x, 'nominal', fill_methods['nominal']] for x in nominal_cols]
+    boolean_cols = [[x, 'bool', fill_methods['boolean']] for x in boolean_cols]
+    timestamp_cols = [[x, 'timestamp', fill_methods['timestamp']] for x in timestamp_cols]
+
+    # Generate `useful_cols` DataFrame
+    useful_cols = pd.DataFrame(
+        data = (numeric_cols + nominal_cols + boolean_cols + timestamp_cols),
+        columns=['feature','dtype','fillna'],
+    )
+    
+    return useful_cols
+
+
+########################
+# INSPECTION FUNCTIONS #
+########################
+
 
 def categorical_excess_cardinality_flagger_and_reducer(
     df, 
