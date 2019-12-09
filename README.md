@@ -8,6 +8,9 @@ See `example-notebooks/house-price-demo.ipynb` for a full walkthrough
 
 ## Future Work
 
+### `categorical_excess_cardinality_flagger_and_reducer`
+- Option for instances where there are no categorical features
+
 ### `missing_value_conditioner`
 - Choose between either {use means from train set (default), calculate means for test set}
 - Missing values for categorical features
