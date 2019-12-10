@@ -1,13 +1,13 @@
 from distutils.core import setup
 setup(
-  name = 'disc',         # How you named your package folder (MyLib)
-  packages = ['disc'],   # Chose the same as "name"
+  name = 'diver',         # How you named your package folder (MyLib)
+  packages = ['diver'],   # Chose the same as "name"
   version = '0.0.0',      # Start with a small number and increase it with every change you make
   license='MIT',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
-  description = 'disc is a series of tools to speed up common feature-set investigation, conditioning and encoding for common ML algorithms',   # Give a short description about your library
+  description = 'diver is a series of tools to speed up common feature-set investigation, conditioning and encoding for common ML algorithms',   # Give a short description about your library
   author = 'Tom Walker',                   # Type in your name
   author_email = 'tom.walker@clearscore.com',      # Type in your E-Mail
-  url = 'https://github.com/ClearScore/disc',   # Provide either the link to your github or to your website
+  url = 'https://github.com/ClearScore/diver',   # Provide either the link to your github or to your website
   download_url = 'https://github.com/ClearScore/disc/archive/v_0.0.0.tar.gz',    # I explain this later on
   keywords = ['dataset', 'conditioner', 'feature engineering', 'data inspection'],   # Keywords that define your package best
   install_requires=[            # I get to this in a second
