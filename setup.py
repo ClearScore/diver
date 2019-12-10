@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
   name = 'disc',         # How you named your package folder (MyLib)
   packages = ['disc'],   # Chose the same as "name"
-  version = '0.1',      # Start with a small number and increase it with every change you make
+  version = '0.0.0',      # Start with a small number and increase it with every change you make
   license='MIT',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = 'disc is a series of tools to speed up common feature-set investigation, conditioning and encoding for common ML algorithms',   # Give a short description about your library
   author = 'Tom Walker',                   # Type in your name
