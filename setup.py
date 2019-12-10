@@ -8,8 +8,8 @@ setup(
   author = 'Tom Walker',                   # Type in your name
   author_email = 'tom.walker@clearscore.com',      # Type in your E-Mail
   url = 'https://github.com/ClearScore/disc',   # Provide either the link to your github or to your website
-  download_url = 'https://github.com/ClearScore/disc/archive/v_01.tar.gz',    # I explain this later on
-  keywords = ['dataset', 'conditioner', 'feature engineering'],   # Keywords that define your package best
+  download_url = 'https://github.com/ClearScore/disc/archive/v_0.0.0.tar.gz',    # I explain this later on
+  keywords = ['dataset', 'conditioner', 'feature engineering', 'data inspection'],   # Keywords that define your package best
   install_requires=[            # I get to this in a second
           'pandas',
           'numpy',
