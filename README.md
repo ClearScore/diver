@@ -1,3 +1,5 @@
+![diver pic](pictures/stingray.jpg)
+
 # dataset-conditioner
 
 ![`fit_transform` flow](pictures/readme_flow.png)
