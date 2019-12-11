@@ -1,3 +1,7 @@
+# DIVER
+
+**Diver** is the **D**ataset **I**nspection, **Visualisation** and **E**ncode**r** library, automating and codifying common data science project steps.
+
 ![diver pic](pictures/stingray.jpg)
 
 # dataset-conditioner
