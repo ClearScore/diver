@@ -1,6 +1,6 @@
 # DIVER
 
-**Diver** is the **D**ataset **I**nspection, **Visualisation** and **E**ncode**r** library, automating and codifying common data science project steps.
+`Diver` is the `D`ataset `I`nspector, `V`isualiser and `E`ncode`r` library, automating and codifying common data science project steps as standardised and reusable methods.
 
 ![diver pic](pictures/stingray.jpg)
 
