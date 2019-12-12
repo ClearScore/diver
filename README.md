@@ -2,6 +2,8 @@
 
 `Diver` is the `D`ataset `I`nspector, `V`isualiser and `E`ncode`r` library, automating and codifying common data science project steps as standardised and reusable methods.
 
+See `example-notebooks/house-price-demo.ipynb` for a full walkthrough.
+
 <p align="center">
   <img width="460" height="300" src="pictures/stingray.jpg">
 </p>
@@ -29,37 +31,34 @@ Functions for visualising aspects of the dataset
 
 ![correlation](pictures/correlation.png)
 
-## Procedure
-
-See `example-notebooks/house-price-demo.ipynb` for a full walkthrough
 
 ## Future Work
 
-### `categorical_excess_cardinality_flagger_and_reducer`
+#### `categorical_excess_cardinality_flagger_and_reducer`
 - Option for instances where there are no categorical features
 
-### `missing_value_conditioner`
+#### `missing_value_conditioner`
 - Choose between either {use means from train set (default), calculate means for test set}
 - Missing values for categorical features
 
-- Implement this: https://measuringu.com/handle-missing-data/
+- Implement missing value imputation: https://measuringu.com/handle-missing-data/
 
 - GOOD READING: https://towardsdatascience.com/6-different-ways-to-compensate-for-missing-values-data-imputation-with-examples-6022d9ca0779
 
-### `ordinal_encoder`
+#### `ordinal_encoder`
 - Create a function to do this
 
-### `timestamp_encoder`
+#### `timestamp_encoder`
 - is_public_holiday : bool
 - Update above diagram
 
-### Remove warnings
+#### Remove warnings
 
-### Make robust to non-consecutive indices in input df
+#### Make robust to non-consecutive indices in input df
 
-### Unit test all functions
+#### Unit test all functions
 
-### PCA option?
+#### PCA option?
 - https://medium.com/apprentice-journal/pca-application-in-machine-learning-4827c07a61db
 
 ## Useful info
@@ -69,7 +68,7 @@ See `example-notebooks/house-price-demo.ipynb` for a full walkthrough
 ### Label balanced class checker (for classification problems)
 - https://machinelearningmastery.com/tactics-to-combat-imbalanced-classes-in-your-machine-learning-dataset/
 
-### Extreme values
+#### Extreme values
 
 # dataset_visualiser
 
@@ -81,8 +80,4 @@ See `example-notebooks/house-price-demo.ipynb` for a full walkthrough
 
 # Useful reading
 https://machinelearningmastery.com/process-for-working-through-machine-learning-problems/
-
-
-- Option for PCA at this stage?
-
 
