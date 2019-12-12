@@ -6,7 +6,11 @@
   <img width="460" height="300" src="pictures/stingray.jpg">
 </p>
 
-# dataset-conditioner
+## `dataset_inspector`
+
+![`inspector` flow](pictures/inspector_flow.png)
+
+## `dataset-conditioner`
 
 ![`fit_transform` flow](pictures/readme_flow.png)
 
