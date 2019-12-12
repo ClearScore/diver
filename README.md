@@ -15,7 +15,7 @@ A set of functions which help perform checks for common dataset issues which can
 ## `dataset-conditioner`
 
 A `scikit-learn` formatted module which can perform various data-type encodings in a single go, and save the associated attributes from a train-set encoding to reuse on a test-set encoding:
-- The `.fit_transform` method learns various encodings (feature means and variances - yellow in the flow chart below) and then performs the various encodings on the feature train set
+- The `.fit_transform` method learns various encodings (feature means and variances; categorical feature elements - yellow in the flow chart below) and then performs the various encodings on the feature train set
 - The `.transform` method applies train-set encodings to a test set
 
 ![`fit_transform` flow](pictures/readme_flow.png)
