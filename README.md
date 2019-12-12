@@ -4,6 +4,10 @@
 
 ![diver pic](pictures/stingray.jpg)
 
+<p align="center">
+  <img width="460" height="300" src="pictures/stingray.jpg">
+</p>
+
 # dataset-conditioner
 
 ![`fit_transform` flow](pictures/readme_flow.png)
