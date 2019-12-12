@@ -58,26 +58,21 @@ Functions for visualising aspects of the dataset
 
 #### Unit test all functions
 
-#### PCA option?
-- https://medium.com/apprentice-journal/pca-application-in-machine-learning-4827c07a61db
-
-## Useful info
-
-# dataset_inspector
-- https://towardsdatascience.com/smarter-ways-to-encode-categorical-data-for-machine-learning-part-1-of-3-6dca2f71b159
-### Label balanced class checker (for classification problems)
-- https://machinelearningmastery.com/tactics-to-combat-imbalanced-classes-in-your-machine-learning-dataset/
-
 #### Extreme values
 
-# dataset_visualiser
+#### PCA option?
 
-### Distribution and correlation analysis
+#### Label balanced class checker (for classification problems)
+- https://machinelearningmastery.com/tactics-to-combat-imbalanced-classes-in-your-machine-learning-dataset/
+
+#### Distribution and correlation analysis
 - Display correlation matrix for top `n` correlates alongside target at the bottom
 - Display pairplot for top `n` correlates alongside target at the bottom
 - Or instead of `top n` correlates, instead threshold of `cumulative variance`
 - Option to DROOP lower correlates (lower than threshold) if desired
 
 # Useful reading
-https://machinelearningmastery.com/process-for-working-through-machine-learning-problems/
+- https://machinelearningmastery.com/process-for-working-through-machine-learning-problems/
+- https://towardsdatascience.com/smarter-ways-to-encode-categorical-data-for-machine-learning-part-1-of-3-6dca2f71b159
+- https://medium.com/apprentice-journal/pca-application-in-machine-learning-4827c07a61db
 
