@@ -2,8 +2,6 @@
 
 `Diver` is the `D`ataset `I`nspector, `V`isualiser and `E`ncode`r` library, automating and codifying common data science project steps as standardised and reusable methods.
 
-![diver pic](pictures/stingray.jpg)
-
 <p align="center">
   <img width="460" height="300" src="pictures/stingray.jpg">
 </p>
