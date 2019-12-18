@@ -12,7 +12,7 @@ See `example-notebooks/house-price-demo.ipynb` for a full walkthrough.
 
 A set of functions which help perform checks for common dataset issues which can impact machine learning model performance.
 
-![`inspector` flow](pictures/inspector_flow.png)
+![`inspector` flow](https://github.com/ClearScore/diver/blob/master/pictures/inspector_flow.png)
 
 ## `dataset_conditioner`
 
@@ -20,7 +20,7 @@ A `scikit-learn`-formatted module which can perform various data-type encodings 
 - The `.fit_transform` method learns various encodings (feature means and variances; categorical feature elements - yellow in the flow chart below) and then performs the various encodings on the feature train set
 - The `.transform` method applies train-set encodings to a test set
 
-![`fit_transform` flow](pictures/readme_flow.png)
+![`fit_transform` flow](https://github.com/ClearScore/diver/blob/master/pictures/readme_flow.png)
 
 ## `dataset_visualiser`
 
@@ -29,7 +29,7 @@ Functions for visualising aspects of the dataset
 ### Correlation analysis
 - Display the correlation matrix for the top `n` correlating features (`n` specified by the user) against the dependent variable (at the bottom row of the matrix)
 
-![correlation](pictures/correlation.png)
+![correlation](https://github.com/ClearScore/diver/blob/master/pictures/correlation.png)
 
 
 ## Future Work
