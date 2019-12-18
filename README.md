@@ -5,7 +5,7 @@
 See `example-notebooks/house-price-demo.ipynb` for a full walkthrough.
 
 <p align="center">
-  <img width="460" height="300" src="pictures/stingray.jpg">
+  <img width="460" height="300" src="https://github.com/ClearScore/diver/blob/master/pictures/stingray.jpg">
 </p>
 
 ## `dataset_inspector`
