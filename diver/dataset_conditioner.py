@@ -10,7 +10,7 @@ import pickle
 from joblib import dump, load
 # For checking for nans, used in boolean_mapper
 from math import isnan
-from _shared import _get_boolean_elements
+from diver._shared import _get_boolean_elements
 
 
 #############

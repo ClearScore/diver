@@ -1,7 +1,7 @@
 # Import libraries
 import pandas as pd
 import numpy as np
-from _shared import _get_boolean_elements
+from diver._shared import _get_boolean_elements
 
 ##############################
 # USEFUL_COLS AUTO-GENERATOR #
