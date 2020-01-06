@@ -2,7 +2,7 @@
 
 `Diver` is the `D`ataset `I`nspector, `V`isualiser and `E`ncode`r` library, automating and codifying common data science project steps as standardised and reusable methods.
 
-See `example-notebooks/house-price-demo.ipynb` for a full walkthrough.
+See `example-notebooks/house-price-demo.ipynb` for a full walkthrough or follow this link: https://tinyurl.com/ye9hfbzp.
 
 <p align="center">
   <img width="460" height="300" src="https://github.com/ClearScore/diver/raw/master/pictures/stingray.jpg">
