@@ -18,9 +18,6 @@ from diver._shared import _get_boolean_elements
 #############
 
 # Define individual encoding functions
-
-print('hi!')
-
 def _missing_value_conditioner(features, useful_cols, mode='fit_transform', **kwargs):
     '''
     Function looks for missing values (NaNs) in the dataframe `features`, and deals with them as specified in the lookup table `useful_cols`.
@@ -61,68 +58,42 @@ def _missing_value_conditioner(features, useful_cols, mode='fit_transform', **kw
     
     '''
     
-    ## Get DataFrame containing features with some NaNs, and how to deal with them joined on from the `useful_cols` df
-    # Get counts of NaN values in each column
-    features_nan_counts = pd.DataFrame(features.isna().sum()).reset_index()
-    # Rename columns in resulting DataFrame
-    features_nan_counts.rename(mapper={'index': 'feature', 0: 'nan_count'}, axis=1, inplace=True)
-    # Join on how to deal with nans from the `useful_cols` df
-    features_nan_counts = pd.merge(features_nan_counts, useful_cols, on='feature')
-    
     # Get set of fill types
-    fill_types = set(features_nan_counts['fillna'].values)
+    fill_types = set(useful_cols['fillna'])
     
     for fill_type in fill_types:
         if fill_type == 'skip':
             pass
         
         elif fill_type == 'mean':
-            # Get list of columns to be filled in a given way
-            feats_mean_filled = list(
-                features_nan_counts['feature'][features_nan_counts['fillna'] == 'mean'].values
-            )
+            mean_filled = list(useful_cols.loc[useful_cols['fillna'] == 'mean', 'feature'])
             # Get slice of main `features` df for these features
-            features_with_nans = features[feats_mean_filled]
+            features_mean_filled = features[mean_filled]
             # Whether to calculate feature means, or use pre-calculated ones, is determined by the `mode` input parameter
             if mode == 'fit_transform':
                 # Get the means of each feature
-                means = features_with_nans.mean()
+                means = features_mean_filled.mean()
             elif mode == 'transform':
                 # Use pre-calculated means from a previous `fit_transform` stage
                 means = kwargs['means']
             else:
                 raise ValueError(
-                    '''`Mode` argument "{}" not supported. Needs to be one of ('fit_transform', 'transform')
-                    '''.format(mode).replace('\n',' ')
+                    f"`Mode` argument '{mode}' not supported. Needs to be one of ('fit_transform', 'transform')"
                 )
-            # Get the locations of NaNs
-            idx_nans = features_with_nans.isna()
-            # Initialise copy dataframe
-            features_without_nans = pd.DataFrame(index=features_with_nans.index)
-            # Iterate over columns and replace NaNs for each with the column average
-            for name, column in features_with_nans.iteritems():
-                # Change NaNs to the mean value. This works in-place in the loop and changes features_with_nans 
-                # in-place
-                column.loc[idx_nans[name]] = means[name]
-            # Overwrite the original features (with nans), with the new copy with nans filled
-            features.loc[:,feats_mean_filled] = features_with_nans
+            # Fill NaNs
+            features.loc[:, mean_filled] = features.loc[:, mean_filled].fillna(means)
         
         elif fill_type == 'zeros':
             # Get list of columns to be filled in a given way
-            feats_zeros_filled = list(features_nan_counts['feature'][features_nan_counts['fillna'] == 'zeros'].values)
-            # Get slice of main `features` df for these features
-            features_with_nans_zeros = features[feats_zeros_filled]
-            # Fill all NaN locations with zeros
-            features_with_nans_zeros.fillna(value=0, inplace=True)
+            zeros_filled = list(useful_cols['feature'][useful_cols['fillna'] == 'zeros'].values)
             # Overwrite the original features (with nans), with the new copy with nans filled
-            features.loc[:,feats_zeros_filled] = features_with_nans_zeros
+            features.loc[:, zeros_filled] = features.loc[:, zeros_filled].fillna(value=0)
             
         else:
             raise ValueError(
-                '''Currently, `_missing_value_conditioner` is programmed to deal with only dtype 'numeric' and only
-                with fill methods 'mean' and 'zeros'. The full set of fill types specified in input `useful_cols`
-                is {}
-                '''.format(fill_types).replace('\n',' ')
+                f"Currently, `_missing_value_conditioner` is programmed to deal with only dtype 'numeric' and only " \
+                f"with fill methods 'mean' and 'zeros'. The full set of fill types specified in input `useful_cols` " \
+                f"is {fill_types}" \
             )
 
         # If no columns specified as to be filled by mode='means', there will currently be no means parameter to return
