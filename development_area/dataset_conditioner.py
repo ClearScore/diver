@@ -67,12 +67,10 @@ def _missing_value_conditioner(features, useful_cols, mode='fit_transform', **kw
         
         elif fill_type == 'mean':
             mean_filled = list(useful_cols.loc[useful_cols['fillna'] == 'mean', 'feature'])
-            # Get slice of main `features` df for these features
-            features_mean_filled = features[mean_filled]
             # Whether to calculate feature means, or use pre-calculated ones, is determined by the `mode` input parameter
             if mode == 'fit_transform':
                 # Get the means of each feature
-                means = features_mean_filled.mean()
+                means = features.loc[:, mean_filled].mean()
             elif mode == 'transform':
                 # Use pre-calculated means from a previous `fit_transform` stage
                 means = kwargs['means']
@@ -85,7 +83,7 @@ def _missing_value_conditioner(features, useful_cols, mode='fit_transform', **kw
         
         elif fill_type == 'zeros':
             # Get list of columns to be filled in a given way
-            zeros_filled = list(useful_cols['feature'][useful_cols['fillna'] == 'zeros'].values)
+            zeros_filled = list(useful_cols['feature'][useful_cols['fillna'] == 'zeros'])
             # Overwrite the original features (with nans), with the new copy with nans filled
             features.loc[:, zeros_filled] = features.loc[:, zeros_filled].fillna(value=0)
             
