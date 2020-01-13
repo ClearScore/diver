@@ -50,7 +50,9 @@ Functions for visualising aspects of the dataset
 
 #### `timestamp_encoder`
 - is_public_holiday : bool
+  https://pypi.org/project/holidays/
 - Update above diagram
+- Encode year linked to overall numeric encoding
 
 #### Remove warnings
 
