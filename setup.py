@@ -16,7 +16,7 @@ setuptools.setup(
     install_requires=[
         'sklearn>=0.22',
         'joblib',
-    ]
+    ],
     classifiers=[
         'Development Status :: 4 - Beta',      # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
         'Intended Audience :: Developers',      # Define that your audience are developers
