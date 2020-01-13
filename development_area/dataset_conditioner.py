@@ -142,13 +142,13 @@ def _numeric_encoder(features, useful_cols, mode='fit_transform', **kwargs):
         # Instantiate sklearn demean/rescaler
         scaler = StandardScaler()
         # Fit sklearn demean/rescaler
-        numeric_features_transformed = scaler.fit_transform(numeric_features)
+        numeric_features_transformed = scaler.fit_transform(numeric_features.astype(float))
         
     elif mode == 'transform':
         # Load scaler included in the kwargs (already fitted in the previous 'fit_transform' stage)
         scaler = kwargs['scaler']
         # Transform numeric features using previous sklearn demean/rescaler
-        numeric_features_transformed = scaler.transform(numeric_features)    
+        numeric_features_transformed = scaler.transform(numeric_features.astype(float))    
         
     else:
         raise ValueError(
@@ -170,16 +170,6 @@ def _numeric_selector(features, useful_cols):
     '''
     Function skips numeric encoding and just selects the numeric features as specified in useful_cols
         
-    Parameters
-    ----------
-    features : pandas.DataFrame
-        Main data science project input dataframe, which could include some missing values
-    useful_cols : pandas.DataFrame
-        Look-up dataframe, which contains information about the dtypes of desired features, and how to deal with missing values for each feature
-    
-    Raises
-    ------
-    
     Returns
     -------
     numeric_features_transformed : pandas.DataFrame
@@ -408,7 +398,7 @@ def _timestamp_transformer(timestamps, time_of_day_in='seconds', year_normalised
         scaler = StandardScaler()
 
         # Fit sklearn standard scaler
-        rescaled_years = scaler.fit_transform(timestamps_transformed['year'].values.reshape(-1, 1))
+        rescaled_years = scaler.fit_transform(timestamps_transformed['year'].astype(float).values.reshape(-1, 1))
 
         # Update `year` column with rescaled version
         timestamps_transformed['year'] = rescaled_years
