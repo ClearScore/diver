@@ -599,11 +599,11 @@ class FullEncoder:
         '''
         
         # Get subset of useful features in `df` according to the lookup `useful_cols`
-        features = df[list(useful_cols['feature'])]
+        features_raw = df.loc[:, list(useful_cols['feature'])]
 
         # Fill in missing values
         print('Filling in missing values...')
-        features, self.means_ = _missing_value_conditioner(features, useful_cols, mode='fit_transform')
+        features, self.means_ = _missing_value_conditioner(features_raw, useful_cols, mode='fit_transform')
         print('Missing values filled')
         
         # Encode numeric features and store the fitted StandardScaler object for use with the test set
@@ -676,12 +676,12 @@ class FullEncoder:
         '''
         
         # Get subset of useful features in `df` according to the lookup `useful_cols`
-        features = df[list(useful_cols['feature'])]
+        features_raw = df.loc[:, list(useful_cols['feature'])]
         
         # Fill in missing values
         print('Filling in missing values...')
         features, self.means_ = _missing_value_conditioner(
-            features, 
+            features_raw, 
             useful_cols, 
             mode='transform', 
             means=self.means_
