@@ -68,6 +68,10 @@ Functions for visualising aspects of the dataset
 - Inspector
 - Conditioner
 
+#### `IMPORTANT`
+Update setuptools.setup install_requires
+- Version of scikit learn > x to allow imputer
+
 #### Label balanced class checker (for classification problems)
 - https://machinelearningmastery.com/tactics-to-combat-imbalanced-classes-in-your-machine-learning-dataset/
 
