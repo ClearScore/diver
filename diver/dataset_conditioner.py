@@ -18,8 +18,6 @@ from diver._shared import _get_boolean_elements
 #############
 
 # Define individual encoding functions
-
-
 def _missing_value_conditioner(features, useful_cols, mode='fit_transform', **kwargs):
     '''
     Function looks for missing values (NaNs) in the dataframe `features`, and deals with them as specified in the lookup table `useful_cols`.
@@ -60,68 +58,40 @@ def _missing_value_conditioner(features, useful_cols, mode='fit_transform', **kw
     
     '''
     
-    ## Get DataFrame containing features with some NaNs, and how to deal with them joined on from the `useful_cols` df
-    # Get counts of NaN values in each column
-    features_nan_counts = pd.DataFrame(features.isna().sum()).reset_index()
-    # Rename columns in resulting DataFrame
-    features_nan_counts.rename(mapper={'index': 'feature', 0: 'nan_count'}, axis=1, inplace=True)
-    # Join on how to deal with nans from the `useful_cols` df
-    features_nan_counts = pd.merge(features_nan_counts, useful_cols, on='feature')
-    
     # Get set of fill types
-    fill_types = set(features_nan_counts['fillna'].values)
+    fill_types = set(useful_cols['fillna'])
     
     for fill_type in fill_types:
         if fill_type == 'skip':
             pass
         
         elif fill_type == 'mean':
-            # Get list of columns to be filled in a given way
-            feats_mean_filled = list(
-                features_nan_counts['feature'][features_nan_counts['fillna'] == 'mean'].values
-            )
-            # Get slice of main `features` df for these features
-            features_with_nans = features[feats_mean_filled]
+            mean_filled = list(useful_cols.loc[useful_cols['fillna'] == 'mean', 'feature'])
             # Whether to calculate feature means, or use pre-calculated ones, is determined by the `mode` input parameter
             if mode == 'fit_transform':
                 # Get the means of each feature
-                means = features_with_nans.mean()
+                means = features.loc[:, mean_filled].mean()
             elif mode == 'transform':
                 # Use pre-calculated means from a previous `fit_transform` stage
                 means = kwargs['means']
             else:
                 raise ValueError(
-                    '''`Mode` argument "{}" not supported. Needs to be one of ('fit_transform', 'transform')
-                    '''.format(mode).replace('\n',' ')
+                    f"`Mode` argument '{mode}' not supported. Needs to be one of ('fit_transform', 'transform')"
                 )
-            # Get the locations of NaNs
-            idx_nans = features_with_nans.isna()
-            # Initialise copy dataframe
-            features_without_nans = pd.DataFrame(index=features_with_nans.index)
-            # Iterate over columns and replace NaNs for each with the column average
-            for name, column in features_with_nans.iteritems():
-                # Change NaNs to the mean value. This works in-place in the loop and changes features_with_nans 
-                # in-place
-                column.loc[idx_nans[name]] = means[name]
-            # Overwrite the original features (with nans), with the new copy with nans filled
-            features.loc[:,feats_mean_filled] = features_with_nans
+            # Fill NaNs
+            features.loc[:, mean_filled] = features.loc[:, mean_filled].fillna(means)
         
         elif fill_type == 'zeros':
             # Get list of columns to be filled in a given way
-            feats_zeros_filled = list(features_nan_counts['feature'][features_nan_counts['fillna'] == 'zeros'].values)
-            # Get slice of main `features` df for these features
-            features_with_nans_zeros = features[feats_zeros_filled]
-            # Fill all NaN locations with zeros
-            features_with_nans_zeros.fillna(value=0, inplace=True)
+            zeros_filled = list(useful_cols['feature'][useful_cols['fillna'] == 'zeros'])
             # Overwrite the original features (with nans), with the new copy with nans filled
-            features.loc[:,feats_zeros_filled] = features_with_nans_zeros
+            features.loc[:, zeros_filled] = features.loc[:, zeros_filled].fillna(value=0)
             
         else:
             raise ValueError(
-                '''Currently, `_missing_value_conditioner` is programmed to deal with only dtype 'numeric' and only
-                with fill methods 'mean' and 'zeros'. The full set of fill types specified in input `useful_cols`
-                is {}
-                '''.format(fill_types).replace('\n',' ')
+                f"Currently, `_missing_value_conditioner` is programmed to deal with only dtype 'numeric' and only " \
+                f"with fill methods 'mean' and 'zeros'. The full set of fill types specified in input `useful_cols` " \
+                f"is {fill_types}" \
             )
 
         # If no columns specified as to be filled by mode='means', there will currently be no means parameter to return
@@ -172,13 +142,13 @@ def _numeric_encoder(features, useful_cols, mode='fit_transform', **kwargs):
         # Instantiate sklearn demean/rescaler
         scaler = StandardScaler()
         # Fit sklearn demean/rescaler
-        numeric_features_transformed = scaler.fit_transform(numeric_features)
+        numeric_features_transformed = scaler.fit_transform(numeric_features.astype(float))
         
     elif mode == 'transform':
         # Load scaler included in the kwargs (already fitted in the previous 'fit_transform' stage)
         scaler = kwargs['scaler']
         # Transform numeric features using previous sklearn demean/rescaler
-        numeric_features_transformed = scaler.transform(numeric_features)    
+        numeric_features_transformed = scaler.transform(numeric_features.astype(float))    
         
     else:
         raise ValueError(
@@ -200,16 +170,6 @@ def _numeric_selector(features, useful_cols):
     '''
     Function skips numeric encoding and just selects the numeric features as specified in useful_cols
         
-    Parameters
-    ----------
-    features : pandas.DataFrame
-        Main data science project input dataframe, which could include some missing values
-    useful_cols : pandas.DataFrame
-        Look-up dataframe, which contains information about the dtypes of desired features, and how to deal with missing values for each feature
-    
-    Raises
-    ------
-    
     Returns
     -------
     numeric_features_transformed : pandas.DataFrame
@@ -438,7 +398,7 @@ def _timestamp_transformer(timestamps, time_of_day_in='seconds', year_normalised
         scaler = StandardScaler()
 
         # Fit sklearn standard scaler
-        rescaled_years = scaler.fit_transform(timestamps_transformed['year'].values.reshape(-1, 1))
+        rescaled_years = scaler.fit_transform(timestamps_transformed['year'].astype(float).values.reshape(-1, 1))
 
         # Update `year` column with rescaled version
         timestamps_transformed['year'] = rescaled_years
@@ -629,11 +589,11 @@ class FullEncoder:
         '''
         
         # Get subset of useful features in `df` according to the lookup `useful_cols`
-        features = df[list(useful_cols['feature'])]
+        features_raw = df.loc[:, list(useful_cols['feature'])]
 
         # Fill in missing values
         print('Filling in missing values...')
-        features, self.means_ = _missing_value_conditioner(features, useful_cols, mode='fit_transform')
+        features, self.means_ = _missing_value_conditioner(features_raw, useful_cols, mode='fit_transform')
         print('Missing values filled')
         
         # Encode numeric features and store the fitted StandardScaler object for use with the test set
@@ -706,12 +666,12 @@ class FullEncoder:
         '''
         
         # Get subset of useful features in `df` according to the lookup `useful_cols`
-        features = df[list(useful_cols['feature'])]
+        features_raw = df.loc[:, list(useful_cols['feature'])]
         
         # Fill in missing values
         print('Filling in missing values...')
         features, self.means_ = _missing_value_conditioner(
-            features, 
+            features_raw, 
             useful_cols, 
             mode='transform', 
             means=self.means_
