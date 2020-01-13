@@ -62,6 +62,10 @@ Functions for visualising aspects of the dataset
 
 #### PCA option?
 
+#### Verbose progress bars
+- Inspector
+- Conditioner
+
 #### Label balanced class checker (for classification problems)
 - https://machinelearningmastery.com/tactics-to-combat-imbalanced-classes-in-your-machine-learning-dataset/
 
