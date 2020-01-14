@@ -54,8 +54,6 @@ Functions for visualising aspects of the dataset
 - Update above diagram
 - Encode year linked to overall numeric encoding
 
-#### Remove warnings
-
 #### Make robust to non-consecutive indices in input df
 
 #### Unit test all functions
