@@ -54,6 +54,10 @@ Functions for visualising aspects of the dataset
 - Update above diagram
 - Encode year linked to overall numeric encoding
 
+#### `dataset_inspector` as class
+- Memorise training set settings (cardinality reductions, cut features) as attributes in order to apply the same settings to test set
+- `fit_transform`/`transform` format as with `dataset_conditioner`
+
 #### Make robust to non-consecutive indices in input df
 
 #### Unit test all functions
