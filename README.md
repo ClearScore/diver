@@ -64,6 +64,9 @@ Functions for visualising aspects of the dataset
 
 #### Extreme values
 
+#### Check `infer_useful_cols`
+- Seems to be missing timestamps and booleans
+
 #### PCA option?
 
 #### Verbose progress bars
