@@ -67,15 +67,13 @@ Functions for visualising aspects of the dataset
 #### Check `infer_useful_cols`
 - Seems to be missing timestamps and booleans
 
+#### `useful_cols` dtype and filltype dataframe within `inspector`
+
 #### PCA option?
 
 #### Verbose progress bars
 - Inspector
 - Conditioner
-
-#### `IMPORTANT`
-Update setuptools.setup install_requires
-- Version of scikit learn > x to allow imputer
 
 #### Label balanced class checker (for classification problems)
 - https://machinelearningmastery.com/tactics-to-combat-imbalanced-classes-in-your-machine-learning-dataset/
