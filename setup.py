@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="diver", # Replace with your own username
-    version="0.1.0",
+    version="0.1.3",
     author="Tom Walker",
     author_email='tom.walker@clearscore.com',
     description='diver is a series of tools to speed up common feature-set investigation, conditioning and encoding for common ML algorithms',
@@ -14,7 +14,7 @@ setuptools.setup(
     url="https://github.com/ClearScore/diver",
     packages=setuptools.find_packages(),
     install_requires=[
-        'sklearn>=0.22',
+        'scikit-learn>=0.22.1',
         'joblib',
     ],
     classifiers=[
