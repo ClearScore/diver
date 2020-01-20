@@ -34,7 +34,7 @@ Functions for visualising aspects of the dataset
 ## Latest PyPI Version
 
 - **MAJOR: 0.** - 
-- **MINOR: 0.** - New Sklearn single feature missing value imputers (mean, median, zero, most frequent) replace previous manual implementations
+- **MINOR: 2.** - New Sklearn single feature missing value imputers (mean, median, zero, most frequent) replace previous manual implementations
 - **BUGFIX: 0.** - 
 
 
