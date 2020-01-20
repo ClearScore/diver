@@ -35,6 +35,9 @@ def _dtype_detector(features):
     
     for feature_name, feature in features.iteritems():
         
+        ## Ignore any nans in the features at this step
+        feature = feature.dropna()
+        
         ## Detect timestamp/datetime features
         
         if pd.core.dtypes.common.is_datetime_or_timedelta_dtype(feature):
@@ -43,19 +46,14 @@ def _dtype_detector(features):
         ## Detect boolean features
         
         # Series.value_counts() disregards NaNs, so a necessary condition for a boolean column is a set of values of length 2
-        feature_values = feature.value_counts().values
+        feature_values = set(feature)
         n_values = len(feature_values)
 
         if n_values == 2:
-            if feature_values[0] in true_set and feature_values[1] in false_set:
+            # If 1 element of the 2 element set is in the true_set and the other is in the false_set, then it is boolean
+            if bool(feature_values & true_set) & bool(feature_values & false_set):
                 boolean_cols.append(feature_name)
-            elif feature_values[1] in true_set and feature_values[0] in false_set:
-                boolean_cols.append(feature_name)
-            else:
-                pass
-        else:
-            pass
-        
+
     ## Test for numerical/categorical
 
     # Ignore features already flagged as boolean or timestamp
@@ -109,7 +107,7 @@ def infer_useful_cols(features, fill_methods={'numeric': 'mean', 'nominal': 'ski
     # Append dtype label and fill method to each feature as specified in the fill_method dictionary
     numeric_cols = [[x, 'numeric', fill_methods['numeric']] for x in numeric_cols]
     nominal_cols = [[x, 'nominal', fill_methods['nominal']] for x in nominal_cols]
-    boolean_cols = [[x, 'bool', fill_methods['boolean']] for x in boolean_cols]
+    boolean_cols = [[x, 'bool', fill_methods['bool']] for x in boolean_cols]
     timestamp_cols = [[x, 'timestamp', fill_methods['timestamp']] for x in timestamp_cols]
 
     # Generate `useful_cols` DataFrame
