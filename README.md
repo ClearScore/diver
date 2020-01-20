@@ -31,6 +31,12 @@ Functions for visualising aspects of the dataset
 
 ![correlation](https://github.com/ClearScore/diver/raw/master/pictures/correlation.png)
 
+## Latest PyPI Version
+
+**MAJOR: 0.** - 
+**MINOR: 0.** - New Sklearn single feature missing value imputers (mean, median, zero, most frequent) replace previous manual implementations
+**BUGFIX: 0.** - 
+
 
 ## Future Work
 
@@ -65,7 +71,7 @@ Functions for visualising aspects of the dataset
 #### Extreme values
 
 #### Check `infer_useful_cols`
-- Seems to be missing timestamps and booleans
+- Seems to be missing timestamps
 
 #### `useful_cols` dtype and filltype dataframe within `inspector`
 
