@@ -72,7 +72,7 @@ def _dtype_detector(features):
     return boolean_cols, timestamp_cols, numeric_cols, nominal_cols
 
 
-def infer_useful_cols(features, fill_methods={'numeric': 'mean', 'nominal': 'skip', 'bool': 'zeros','timestamp': 'skip'}):
+def infer_useful_cols(features, fill_methods={'numeric': 'mean', 'nominal': 'most_frequent', 'bool': 'zeros', 'timestamp': 'skip'}):
     '''
     Automatically generates the `useful_cols` DataFrame given a feature-set and a dictionary specifying how missing values are to be filled
     
