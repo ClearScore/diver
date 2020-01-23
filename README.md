@@ -45,7 +45,6 @@ Functions for visualising aspects of the dataset
 
 #### `missing_value_conditioner`
 - Choose between either {use means from train set (default), calculate means for test set}
-- Missing values for categorical features
 
 - Implement missing value imputation: https://measuringu.com/handle-missing-data/
 
@@ -63,8 +62,6 @@ Functions for visualising aspects of the dataset
 #### `dataset_inspector` as class
 - Memorise training set settings (cardinality reductions, cut features) as attributes in order to apply the same settings to test set
 - `fit_transform`/`transform` format as with `dataset_conditioner`
-
-#### Make robust to non-consecutive indices in input df
 
 #### Unit test all functions
 
