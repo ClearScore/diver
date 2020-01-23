@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 from sklearn.preprocessing import StandardScaler    # Demean and rescale numerical columns
+from sklearn.impute import SimpleImputer    # Impute missing values for single columns
 # For saving and loading FullEncoder object
 import pickle
 from joblib import dump, load
@@ -22,14 +23,9 @@ def _missing_value_conditioner(features, useful_cols, mode='fit_transform', **kw
     '''
     Function looks for missing values (NaNs) in the dataframe `features`, and deals with them as specified in the lookup table `useful_cols`.
     
-    At the moment, methods for dealing with missing values are:
-    - (Numeric dtype)
-        - 'mean': fill with the mean value of the column
-        - 'zeros': fill with zeros
-    - (Nominal dtype)
-        - TO DO
-    - (All types)
-        - 'skip': ignore this column for the missing values conditioner
+    At the moment, methods for dealing with missing values are (by data-type):
+    - 'numeric': {'skip', 'zeros', 'mean', 'median', 'most_frequent'}
+    - 'nominal': {'skip', 'most_frequent'}
         
     Parameters
     ----------
@@ -38,9 +34,9 @@ def _missing_value_conditioner(features, useful_cols, mode='fit_transform', **kw
     useful_cols : pandas.DataFrame
         Look-up dataframe, which contains information about the dtypes of desired features, and how to deal with missing values for each feature
     mode : str
-        One of {'fit_transform', 'transform'}. Default = 'fit_transform. If 'transform', the feature means generated from the 'fit_transform' stage must be included as a kwarg
+        One of {'fit_transform', 'transform'}. Default = 'fit_transform. If 'transform', the imputers generated from the 'fit_transform' stage must be included as a kwarg
     **kwargs
-        {'means': means} If mode is 'transform'
+        {'imputers': imputers} If mode is 'transform'
     
     Raises
     ------
@@ -53,33 +49,37 @@ def _missing_value_conditioner(features, useful_cols, mode='fit_transform', **kw
     -------
     features : pandas.DataFrame
         Input dataframe with missing values filled as specified
-    means : pandas.Series
-        Series of {feature: feature_mean} for all features specified to be filled with the feature mean, as calculated at the 'fit_transform' stage
+    imputers : sklearn.impute.SimpleImputer object
+        Imputer object, as calculated at the 'fit_transform' stage
     
     '''
     
     # Get set of fill types
     fill_types = set(useful_cols['fillna'])
+  
+    # Store sklearn imputers for transform stage
+    imputers = dict()
     
     for fill_type in fill_types:
+        
         if fill_type == 'skip':
             pass
         
-        elif fill_type == 'mean':
-            mean_filled = list(useful_cols.loc[useful_cols['fillna'] == 'mean', 'feature'])
+        elif fill_type in {'mean', 'median', 'most_frequent'}:
+            cols_to_be_filled = useful_cols.loc[useful_cols['fillna'] == fill_type, 'feature']
             # Whether to calculate feature means, or use pre-calculated ones, is determined by the `mode` input parameter
             if mode == 'fit_transform':
-                # Get the means of each feature
-                means = features.loc[:, mean_filled].mean()
+                imp = SimpleImputer(strategy=fill_type)
+                features.loc[:, cols_to_be_filled] = imp.fit_transform(features.loc[:, cols_to_be_filled])
+                imputers[fill_type] = imp
             elif mode == 'transform':
-                # Use pre-calculated means from a previous `fit_transform` stage
-                means = kwargs['means']
+                imputers = kwargs['imputers']
+                imp = imputers[fill_type]
+                features.loc[:, cols_to_be_filled] = imp.transform(features.loc[:, cols_to_be_filled])
             else:
                 raise ValueError(
                     f"`Mode` argument '{mode}' not supported. Needs to be one of ('fit_transform', 'transform')"
                 )
-            # Fill NaNs
-            features.loc[:, mean_filled] = features.loc[:, mean_filled].fillna(means)
         
         elif fill_type == 'zeros':
             # Get list of columns to be filled in a given way
@@ -89,19 +89,19 @@ def _missing_value_conditioner(features, useful_cols, mode='fit_transform', **kw
             
         else:
             raise ValueError(
-                f"Currently, `_missing_value_conditioner` is programmed to deal with only dtype 'numeric' and only " \
-                f"with fill methods 'mean' and 'zeros'. The full set of fill types specified in input `useful_cols` " \
+                f"fill_type: {fill_type} not supported. Currently, `_missing_value_conditioner` supports  {{'skip', 'zeros', 'mean', 'median', 'most_frequent'}}" \
+                f"for dtype: 'numeric' and {{{'skip', 'most_frequent'}}} for dtype: 'nominal'. The full set of fill types specified in input `useful_cols` " \
                 f"is {fill_types}" \
             )
 
         # If no columns specified as to be filled by mode='means', there will currently be no means parameter to return
         # This line catches this eventuality and assigns a dummy value
         try:
-            means
+            imputers
         except NameError:
-            means = None
+            imputers = None
     
-    return features, means
+    return features, imputers
 
 
 def _numeric_encoder(features, useful_cols, mode='fit_transform', **kwargs):
@@ -554,7 +554,7 @@ class FullEncoder:
     def __init__(self):
 
         # Attributes will be generated when `fit_transform` is called and used when `transform` is called
-        self.means_ = None
+        self.imputers_ = None
         self.scaler_ = None
         self.cat_cols_ = None
 
@@ -593,7 +593,7 @@ class FullEncoder:
 
         # Fill in missing values
         print('Filling in missing values...')
-        features, self.means_ = _missing_value_conditioner(features_raw, useful_cols, mode='fit_transform')
+        features, self.imputers_ = _missing_value_conditioner(features_raw, useful_cols, mode='fit_transform')
         print('Missing values filled')
         
         # Encode numeric features and store the fitted StandardScaler object for use with the test set
@@ -670,11 +670,11 @@ class FullEncoder:
         
         # Fill in missing values
         print('Filling in missing values...')
-        features, self.means_ = _missing_value_conditioner(
+        features, self.imputers_ = _missing_value_conditioner(
             features_raw, 
             useful_cols, 
             mode='transform', 
-            means=self.means_
+            imputers=self.imputers_
         )
         print('Missing values filled')
         
