@@ -337,7 +337,7 @@ def _timestamp_transformer(timestamps, time_of_day_in='seconds', year_normalised
             'is_weekend': _weekend_flagger(x)}
     )
 
-    timestamps_transformed = pd.DataFrame(list(timestamps_transformed))
+    timestamps_transformed = pd.DataFrame(list(timestamps_transformed), index=timestamps.index)
 
     # Get second of day 
     timestamps_transformed['second_of_day'] = timestamps_transformed['hour_of_day']*60*60 + timestamps_transformed['minute_of_hour']*60 + timestamps_transformed['second_of_minute']
